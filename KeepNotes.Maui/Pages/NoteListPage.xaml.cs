@@ -15,7 +15,7 @@ public partial class NoteListPage : ContentPage
         _noteService = noteService;
         Notes = new ObservableCollection<Note>();
         BindingContext = this;
-
+        IsBusy = true;
         InitializeComponent();
     }
 
@@ -24,6 +24,7 @@ public partial class NoteListPage : ContentPage
         base.OnAppearing();
 
         var notes = await _noteService.GetAllNotesAsync();
+        IsBusy = false;
         Notes.Clear();
 
         foreach (var note in notes)
@@ -32,7 +33,8 @@ public partial class NoteListPage : ContentPage
             {
                 Id = note.Id,
                 Title = note.Title,
-                Content = note.Content
+                Content = note.Content,
+                LastModified = note.LastModified
             });
         }
     }

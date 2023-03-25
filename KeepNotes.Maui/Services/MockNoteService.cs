@@ -13,16 +13,18 @@ namespace KeepNotes.Maui.Services
 
         public MockNoteService()
         {
+            Random random = new Random();
             _notes = new List<Note>
             {
-                new Note() { Id = 1, Title = "Title 1", Content = "Content 1" },
-                new Note() { Id = 2, Title = "Title 2", Content = "Content 2" },
-                new Note() { Id = 3, Title = "Title 3", Content = "Content 3" }
+                new Note() { Id = 1, Title = "Title 1", Content = "Content 1", LastModified = DateTime.Now.AddHours(random.Next(-200, 200)) },
+                new Note() { Id = 2, Title = "Title 2", Content = "Content 2", LastModified = DateTime.Now.AddDays(random.Next(-200, 200)) },
+                new Note() { Id = 3, Title = "Title 3", Content = "Content 3", LastModified = DateTime.Now.AddMinutes(random.Next(-200, 200)) }
             };
         }
 
         public async Task<List<Note>> GetAllNotesAsync()
         {
+            await Task.Delay(1500);
             return await Task.FromResult(_notes);
         }
 
