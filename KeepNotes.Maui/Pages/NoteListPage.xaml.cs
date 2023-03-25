@@ -11,7 +11,6 @@ public partial class NoteListPage : ContentPage
 
     public ObservableCollection<Note> Notes { get; set; }
     public ICommand RefreshCommand { get; set; }
-    public bool IsRefreshing { get; set; }
 
     public NoteListPage(INoteService noteService)
     {
