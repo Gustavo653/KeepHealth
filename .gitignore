@@ -1,0 +1,97 @@
+# Visual Studio / Xamarin / Mono
+*.userprefs
+*.suo
+*.csproj.user
+*.user
+*.psess
+*.vsp
+*.vssscc
+*.vs10x
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Build results
+[Bb]in/
+[Oo]bj/
+*.cache
+*.dll
+*.exe
+*.log
+*.pdb
+*.pgc
+*.pgd
+*.pgn
+*.ilk
+*.so
+*.app
+*.ipa
+*.xcarchive
+*.xcworkspace
+*.xcuserstate
+*.nupkg
+*.snupkg
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+*.props
+*.targets
+
+# MSTest test Results
+TestResults/
+
+# MSTest code coverage Results
+[Bb]uild[Ll]og.*.xml
+*.[Pp]ublish.xml
+*.coverage
+*.coveragexml
+*.runsettings
+*.cspoj.dotnetcore
+
+# NCrunch
+*.ncrunch*
+_*crunch*.lock
+
+# RIA/Silverlight projects
+Generated_Code/
+
+# Installshield output folder
+[Ee]xpress/
+
+# DocProject
+[Dd]oc[Ss]tyle.*
+
+# Click-Once Manifests
+*.manifest
+*.application
+
+# Publish Web Output
+[Pp]ublish/
+
+# Elmish.Bridge output folder
+elmish-bridge-output/
+
+# StyleCop
+StyleCopReport.xml
+
+# Resharper
+_resharper*
+
+# DotCover
+*.dotCover
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Microsoft Azure Build Output
+csx
+*.cspkg
+*.csxdeploy
+
+# Microsoft Azure Emulator
+AzureEmulator.log
+
+obj/
