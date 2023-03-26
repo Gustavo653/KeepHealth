@@ -5,13 +5,15 @@ namespace KeepNotes.Maui;
 
 public partial class App : Application
 {
-	public App()
-	{
-		InitializeComponent();
+    public App()
+    {
+        InitializeComponent();
 
-        var noteService = new MockNoteService();
+        //var noteService = new MockNoteService();
+        //var navigationPage = new NavigationPage(new NoteListPage(noteService));
 
-        var navigationPage = new NavigationPage(new NoteListPage(noteService));
+        var authService = new MockAuthService();
+        var navigationPage = new NavigationPage(new LoginPage(authService));
 
         MainPage = navigationPage;
     }
