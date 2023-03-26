@@ -22,19 +22,18 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _isLoading = true;
       });
-      bool isAuthenticated = await AuthService().register(_email, _password);
+      bool isRegistered = await AuthService().register(_email, _password);
       setState(() {
         _isLoading = false;
       });
-      if (isAuthenticated) {
+      if (isRegistered) {
         Navigator.pop(_formKey.currentContext!);
       } else {
         await showDialog(
           context: _formKey.currentContext!,
           builder: (context) => AlertDialog(
-            title: const Text('Credenciais inválidas'),
-            content: const Text(
-                'Por favor, verifique seu email e senha e tente novamente.'),
+            title: const Text('Ocorreu um erro ao criar seu usuário'),
+            content: const Text('Por favor, tente novamente mais tarde.'),
             actions: [
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
@@ -99,7 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira uma senha';
                   }
-                  if (value.length < 1) {
+                  if (value.length < 4) {
                     return 'A senha deve ter pelo menos 4 caracteres';
                   }
                   return null;

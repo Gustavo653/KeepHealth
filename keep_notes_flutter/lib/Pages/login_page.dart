@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_notes_flutter/Pages/note_page.dart';
 import 'package:keep_notes_flutter/Pages/register_page.dart';
+import 'package:keep_notes_flutter/Services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -11,14 +13,54 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text;
+      final password = _passwordController.text;
+
+      setState(() {
+        _isLoading = true;
+      });
+      bool isAuthenticated = await AuthService().authenticate(email, password);
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (isAuthenticated) {
+        Navigator.push(
+          _formKey.currentContext!,
+          MaterialPageRoute(
+            builder: (context) => NotesPage(),
+          ),
+        );
+      } else {
+        await showDialog(
+          context: _formKey.currentContext!,
+          builder: (context) => AlertDialog(
+            title: const Text('Credenciais inválidas'),
+            content: const Text(
+                'Por favor, verifique seu email e senha e tente novamente.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -41,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        controller: _usernameController,
+                        controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           labelText: 'E-mail',
@@ -73,18 +115,34 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 32.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // TODO: implement login logic
-                      final username = _usernameController.text;
-                      final password = _passwordController.text;
-                      if (kDebugMode) {
-                        print('Username: $username\nPassword: $password');
-                      }
-                    }
-                  },
-                  child: const Text('Entrar'),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (_isLoading)
+                      Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Visibility(
+                          visible: _isLoading,
+                          child: const CircularProgressIndicator(),
+                        ),
+                      ),
+                    if (!_isLoading)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: ElevatedButton(
+                          onPressed: _submitForm,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Text('Entrar'),
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 16.0),
                 TextButton(
@@ -94,7 +152,8 @@ class _LoginPageState extends State<LoginPage> {
                       MaterialPageRoute(
                         builder: (context) => const RegisterPage(),
                       ),
-                    );                  },
+                    );
+                  },
                   child: const Text('Criar uma conta'),
                 ),
               ],
