@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:keep_notes_flutter/Services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -14,11 +15,34 @@ class _RegisterPageState extends State<RegisterPage> {
   String _email = '';
   String _password = '';
 
-  void _submitForm() {
+  bool _isLoading = false;
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: submit form to backend or local storage
-      if (kDebugMode) {
-        print('Formulário válido! Email: $_email, Senha: $_password');
+      setState(() {
+        _isLoading = true;
+      });
+      bool isAuthenticated = await AuthService().register(_email, _password);
+      setState(() {
+        _isLoading = false;
+      });
+      if (isAuthenticated) {
+        Navigator.pop(_formKey.currentContext!);
+      } else {
+        await showDialog(
+          context: _formKey.currentContext!,
+          builder: (context) => AlertDialog(
+            title: const Text('Credenciais inválidas'),
+            content: const Text(
+                'Por favor, verifique seu email e senha e tente novamente.'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
     }
   }
@@ -27,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crie sua conta - KeepNotes'),
+        title: const Text('Crie sua conta'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -75,8 +99,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira uma senha';
                   }
-                  if (value.length < 4) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
+                  if (value.length < 1) {
+                    return 'A senha deve ter pelo menos 4 caracteres';
                   }
                   return null;
                 },
@@ -87,9 +111,34 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Cadastrar'),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (_isLoading)
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Visibility(
+                        visible: _isLoading,
+                        child: const CircularProgressIndicator(),
+                      ),
+                    ),
+                  if (!_isLoading)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ElevatedButton(
+                        onPressed: _submitForm,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text('Cadastrar'),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
