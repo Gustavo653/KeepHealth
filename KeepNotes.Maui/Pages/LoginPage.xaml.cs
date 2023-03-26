@@ -1,3 +1,4 @@
+using KeepNotes.Maui.Models;
 using KeepNotes.Maui.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -5,65 +6,57 @@ using System.Windows.Input;
 
 namespace KeepNotes.Maui.Pages
 {
-    public partial class LoginPage : ContentPage, INotifyPropertyChanged
+    public partial class LoginPage : ContentPage
     {
-        private readonly IAuthService _authService;
-        private bool _isLoggingIn;
+        public ICommand LoginCommand { get; set; }
 
-        public LoginPage(IAuthService authService)
+        public LoginPage()
         {
-            _authService = authService;
-            LoginCommand = new Command(async () =>
-            {
-                await Login();
-            });
-
             InitializeComponent();
+
+            LoginCommand = new Command(async () => await Login());
         }
-
-        public ICommand LoginCommand { get; }
-
-        public bool IsLoggingIn
-        {
-            get => _isLoggingIn;
-            set
-            {
-                if (_isLoggingIn != value)
-                {
-                    _isLoggingIn = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsNotLoggingIn));
-                }
-            }
-        }
-
-        public bool IsNotLoggingIn => !IsLoggingIn;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task Login()
         {
-            IsLoggingIn = true;
-
-            var username = usernameEntry.Text;
-            var password = passwordEntry.Text;
-
-            if (await _authService.LoginAsync(username, password))
+            // Verifica se os campos foram preenchidos
+            if (string.IsNullOrEmpty(usernameEntry.Text) || string.IsNullOrEmpty(passwordEntry.Text))
             {
+                await DisplayAlert("Atenção", "Por favor, preencha seu nome de usuário e senha.", "OK");
+                return;
+            }
+
+            // Realiza o login (substitua o código abaixo com a lógica real do seu serviço de autenticação)
+            bool isAuthenticated = await AuthenticateAsync(usernameEntry.Text, passwordEntry.Text);
+
+            // Verifica se o login foi bem sucedido
+            if (isAuthenticated)
+            {
+                // Navega para a próxima página
                 var mockNoteService = new MockNoteService();
                 await Navigation.PushAsync(new NoteListPage(mockNoteService));
             }
             else
             {
-                await DisplayAlert("Erro de login", "Usuário ou senha inválidos", "OK", null);
+                await DisplayAlert("Erro", "Nome de usuário ou senha inválidos.", "OK");
             }
-
-            IsLoggingIn = false;
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private async Task<bool> AuthenticateAsync(string username, string password)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            // Implemente a lógica real de autenticação aqui
+            // Por exemplo, pode chamar um serviço RESTful ou verificar em um banco de dados
+            // O exemplo abaixo é apenas uma simulação
+            await Task.Delay(2000);
+
+            if (username == "user" && password == "password")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

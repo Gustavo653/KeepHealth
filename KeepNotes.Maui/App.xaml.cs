@@ -12,8 +12,7 @@ public partial class App : Application
         //var noteService = new MockNoteService();
         //var navigationPage = new NavigationPage(new NoteListPage(noteService));
 
-        var authService = new MockAuthService();
-        var navigationPage = new NavigationPage(new LoginPage(authService));
+        var navigationPage = new NavigationPage(new LoginPage());
 
         MainPage = navigationPage;
     }

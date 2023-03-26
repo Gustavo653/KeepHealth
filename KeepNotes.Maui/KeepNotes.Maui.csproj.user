@@ -3,6 +3,10 @@
   <PropertyGroup>
     <ActiveDebugProfile>Windows Machine</ActiveDebugProfile>
     <ActiveDebugFramework>net7.0-windows10.0.19041.0</ActiveDebugFramework>
+    <UapAppxPackageBuildMode>SideloadOnly</UapAppxPackageBuildMode>
+    <AppxShowAllApps>False</AppxShowAllApps>
+    <_LastSelectedProfileId>MSIX-win10-x86.pubxml</_LastSelectedProfileId>
+    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>

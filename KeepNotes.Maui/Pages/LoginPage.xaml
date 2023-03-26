@@ -3,23 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="KeepNotes.Maui.Pages.LoginPage"
              Title="LoginPage">
-    <StackLayout Padding="10">
-        <Label Text="Faça login para continuar"
-               FontSize="20"
-               Margin="0,10"/>
-        <Entry Placeholder="E-mail"
+    <StackLayout Padding="16,32">
+        <Entry Placeholder="Usuário" 
                x:Name="usernameEntry"
-               Text="{Binding Email}"/>
-        <Entry Placeholder="Senha"
-               Text="{Binding Password}"
-               x:Name="passwordEntry"
-               IsPassword="True"/>
-        <Button Text="Entrar"
-                Command="{Binding LoginCommand}"
-                IsEnabled="{Binding IsNotLoggingIn}"
-                Margin="0,10"/>
-        <ActivityIndicator IsRunning="{Binding IsLoggingIn}"
-                             VerticalOptions="CenterAndExpand"
-                             HorizontalOptions="CenterAndExpand"/>
+               ReturnType="Next"
+               Keyboard="Email"
+               Margin="0,32,0,0"/>
+
+        <Entry Placeholder="Senha" 
+               x:Name="passwordEntry" 
+               IsPassword="True" 
+               ReturnType="Done"/>
+
+        <Button Text="Entrar" 
+                Margin="0,32,0,0" 
+                Command="{Binding LoginCommand}" 
+                IsEnabled="{Binding CanLogin}" 
+                BackgroundColor="#2196F3" 
+                TextColor="#FFFFFF" 
+                CornerRadius="8"/>
+
+        <Label Text="Não possui uma conta? Crie agora." 
+               TextColor="#2196F3" 
+               Margin="0,16,0,0" 
+               FontSize="Small" 
+               TextDecorations="Underline"
+               HorizontalTextAlignment="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}"/>
+            </Label.GestureRecognizers>
+        </Label>
     </StackLayout>
 </ContentPage>
