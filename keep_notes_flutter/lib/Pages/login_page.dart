@@ -23,6 +23,13 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  @override
+  void initState(){
+    _emailController.text = 'teste@teste.com';
+    _passwordController.text = 'senha';
+    super.initState();
+  }
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;

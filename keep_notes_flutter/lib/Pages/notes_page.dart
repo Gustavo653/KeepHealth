@@ -25,6 +25,32 @@ class _NotesPageState extends State<NotesPage> {
     });
   }
 
+  Future<void> _deleteNoteDialog(Note note) async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmar exclusão"),
+        content: const Text("Deseja excluir esta nota?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Excluir"),
+          ),
+        ],
+      ),
+    );
+    if (confirmDelete) {
+      await _noteService.delete(note.id!);
+      setState(() async {
+        await _getNotes();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,31 +68,54 @@ class _NotesPageState extends State<NotesPage> {
             return const Center(child: Text('Erro ao carregar as anotações'));
           }
           final notes = snapshot.data ?? [];
-          return ListView.builder(
-            itemCount: notes.length,
-            itemBuilder: (BuildContext context, int index) {
-              final note = notes[index];
-              return Card(
-                margin: const EdgeInsets.all(16),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        note.title,
-                        style: Theme.of(context).textTheme.headline6,
+          return RefreshIndicator(
+            onRefresh: _getNotes,
+            child: ListView.builder(
+              itemCount: notes.length,
+              itemBuilder: (BuildContext context, int index) {
+                final note = notes[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NoteEditPage(note: note),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        note.content,
-                        style: Theme.of(context).textTheme.bodyText2,
+                    );
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            note.content,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () => _deleteNoteDialog(note),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
