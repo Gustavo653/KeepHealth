@@ -4,9 +4,9 @@ using KeepNotes.Domain.Identity;
 
 namespace KeepNotes.Service
 {
-    public class SOProfile : Profile
+    public class KeepNotesProfile : Profile
     {
-        public SOProfile()
+        public KeepNotesProfile()
         {
             CreateMap<User, UserDTO>(MemberList.None).ReverseMap();
             CreateMap<User, UserLoginDto>(MemberList.None).ReverseMap();

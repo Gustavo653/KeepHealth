@@ -17,4 +17,4 @@ dotnet ef dbcontext scaffold "string banco" Microsoft.EntityFrameworkCore.SqlSer
 
 
 Para criar migration:
-dotnet ef migrations add Initial -p Integra.Persistence -s Integra -c IntegraContext --verbose
+dotnet ef migrations add Initial -p KeepNotes.Persistence -s KeepNotes -c KeepNotesContext --verbose
