@@ -18,6 +18,26 @@ class NoteService {
       title: 'Nota 3',
       content: 'Conteúdo da nota 3',
     ),
+    Note(
+      id: 4,
+      title: 'Nota 4',
+      content: 'Conteúdo da nota 4',
+    ),
+    Note(
+      id: 5,
+      title: 'Nota 5',
+      content: 'Conteúdo da nota 5',
+    ),
+    Note(
+      id: 6,
+      title: 'Nota 6',
+      content: 'Conteúdo da nota 6',
+    ),
+    Note(
+      id: 7,
+      title: 'Nota 7',
+      content: 'Conteúdo da nota 7',
+    ),
   ];
 
   Future<List<Note>> getNotes() async {

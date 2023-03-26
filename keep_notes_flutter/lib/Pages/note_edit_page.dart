@@ -31,16 +31,12 @@ class _NoteEditPageState extends State<NoteEditPage> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-      // Save note to database or API
       final note = Note(
-        id: widget.note?.id ?? DateTime.now().millisecondsSinceEpoch,
+        id: widget.note?.id,
         title: _title,
         content: _content,
       );
-
       await NoteService().saveOrUpdate(note);
-
       Navigator.pop(_formKey.currentContext!, note);
     }
   }
