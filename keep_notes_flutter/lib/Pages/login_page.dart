@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:keep_notes_flutter/Pages/note_page.dart';
+import 'package:keep_notes_flutter/Pages/notes_page.dart';
 import 'package:keep_notes_flutter/Pages/register_page.dart';
 import 'package:keep_notes_flutter/Services/auth_service.dart';
 

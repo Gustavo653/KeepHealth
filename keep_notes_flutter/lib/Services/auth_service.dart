@@ -1,8 +1,8 @@
 import 'dart:async';
 
 class AuthService {
-  static String _validEmail = 'test@test.com';
-  static String _validPassword = 'password';
+  static String _validEmail = 'teste@teste.com';
+  static String _validPassword = 'senha';
 
   Future<bool> authenticate(String email, String password) async {
     await Future.delayed(const Duration(seconds: 2));
