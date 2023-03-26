@@ -1,62 +1,39 @@
-using KeepNotes.Maui.Models;
-using KeepNotes.Maui.Services;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace KeepNotes.Maui.Pages
 {
-    public partial class LoginPage : ContentPage
+    public partial class LoginPage : ContentPage, INotifyPropertyChanged
     {
+        public string Username { get; set; }
+        public string Password { get; set; }
+
         public ICommand LoginCommand { get; set; }
+        public ICommand NavigateToRegisterCommand { get; set; }
+
+        public bool CanLogin
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
+            }
+        }
 
         public LoginPage()
         {
             InitializeComponent();
-
-            LoginCommand = new Command(async () => await Login());
+            LoginCommand = new Command(Login);
+            NavigateToRegisterCommand = new Command(NavigateToRegister);
         }
 
-        private async Task Login()
+        private async void Login()
         {
-            // Verifica se os campos foram preenchidos
-            if (string.IsNullOrEmpty(usernameEntry.Text) || string.IsNullOrEmpty(passwordEntry.Text))
-            {
-                await DisplayAlert("Atenção", "Por favor, preencha seu nome de usuário e senha.", "OK");
-                return;
-            }
-
-            // Realiza o login (substitua o código abaixo com a lógica real do seu serviço de autenticação)
-            bool isAuthenticated = await AuthenticateAsync(usernameEntry.Text, passwordEntry.Text);
-
-            // Verifica se o login foi bem sucedido
-            if (isAuthenticated)
-            {
-                // Navega para a próxima página
-                var mockNoteService = new MockNoteService();
-                await Navigation.PushAsync(new NoteListPage(mockNoteService));
-            }
-            else
-            {
-                await DisplayAlert("Erro", "Nome de usuário ou senha inválidos.", "OK");
-            }
+            // Implement your login logic here
         }
 
-        private async Task<bool> AuthenticateAsync(string username, string password)
+        private async void NavigateToRegister()
         {
-            // Implemente a lógica real de autenticação aqui
-            // Por exemplo, pode chamar um serviço RESTful ou verificar em um banco de dados
-            // O exemplo abaixo é apenas uma simulação
-            await Task.Delay(2000);
-
-            if (username == "user" && password == "password")
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            // Navigate to the register page
         }
     }
 }

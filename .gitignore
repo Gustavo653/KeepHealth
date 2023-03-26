@@ -95,3 +95,50 @@ csx
 AzureEmulator.log
 
 obj/
+
+
+
+
+# Android-specific
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+
+# iOS-specific
+Pods/
+Podfile.lock
+*.xcworkspace
+*.pbxproj
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+
+# Flutter/Dart-specific
+**/build/
+.dart_tool/
+.idea/
+.vscode/
+.packages
+.pub/
+.pub-cache/
+/test_coverage/
+/coverage/
+/tool/
+
+# Other
+*.log
+*.lock
+*.swp
+.DS_Store
