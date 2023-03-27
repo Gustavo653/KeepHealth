@@ -48,7 +48,7 @@ namespace KeepNotes.API.Controllers
                     return Ok(new
                     {
                         userName = user.UserName,
-                        PrimeroNome = user.FirstName,
+                        email = user.Email,
                         token = _tokenService.CreateToken(user).Result
                     });
 
@@ -76,7 +76,7 @@ namespace KeepNotes.API.Controllers
                 return Ok(new
                 {
                     userName = user.UserName,
-                    firstName = user.FirstName,
+                    email = user.Email,
                     token = _tokenService.CreateToken(user).Result
                 });
             }
@@ -104,7 +104,7 @@ namespace KeepNotes.API.Controllers
                 return Ok(new
                 {
                     userName = userReturn.UserName,
-                    firstName = userReturn.FirstName,
+                    email = userReturn.Email,
                     token = _tokenService.CreateToken(userReturn).Result
                 });
             }

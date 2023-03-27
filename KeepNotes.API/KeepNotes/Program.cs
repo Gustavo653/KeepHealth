@@ -1,7 +1,9 @@
 using Common.Functions;
 using Hangfire;
+using KeepNotes.Application;
 using KeepNotes.Domain.Identity;
 using KeepNotes.Persistence;
+using KeepNotes.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +45,10 @@ namespace KeepNotes.API
                 dbContext.Database.Migrate();
             });
 
+            builder.Services.AddTransient<ITokenService, TokenService>();
+            builder.Services.AddTransient<IAccountService, AccountService>();
+            builder.Services.AddTransient<IUserRepository, UserRepository>();
+
             builder.Services.AddIdentityCore<User>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -59,17 +65,18 @@ namespace KeepNotes.API
             .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
+            .AddJwtBearer(options =>
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("TokenKey"))),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-        });
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("TokenKey"))),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 
             builder.Services.AddControllers()
                     .AddJsonOptions(options =>
