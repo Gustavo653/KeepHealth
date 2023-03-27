@@ -1,8 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Common.DTO
 {
-    public class UserLoginDto
+    public class UserLoginDTO
     {
-        public string? Username { get; set; }
+        [Required]
+        public string? UserName { get; set; }
+        [Required]
         public string? Password { get; set; }
     }
 }

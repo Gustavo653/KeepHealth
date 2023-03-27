@@ -19,100 +19,42 @@ namespace KeepNotes.API.Controllers
         }
 
         [HttpGet("GetUser")]
-        public async Task<IActionResult> GetUser()
+        public async Task<ResponseDTO> GetUser()
         {
+            ResponseDTO responseDTO = new();
             try
             {
-                var userName = User.GetUserName();
-                var user = await _accountService.GetUserByUserNameAsync(userName);
-                return Ok(user);
+                responseDTO.Object = await _accountService.GetUserByUserNameAsync(User.GetUserName());
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar recuperar Usuário. Erro: {ex.Message}");
+                responseDTO.SetError(ex);
             }
+            return responseDTO;
         }
 
         [HttpPost("Register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register(UserDTO userDto)
         {
-            try
-            {
-                if (await _accountService.UserExists(userDto.UserName))
-                    return BadRequest("Usuário já existe");
-
-                var user = await _accountService.CreateAccountAsync(userDto);
-                if (user != null)
-                    return Ok(new
-                    {
-                        userName = user.UserName,
-                        email = user.Email,
-                        token = _tokenService.CreateToken(user).Result
-                    });
-
-                return BadRequest("Usuário não criado, tente novamente mais tarde!");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar Registrar Usuário. Erro: {ex.Message}");
-            }
+            var user = await _accountService.CreateAccountAsync(userDto);
+            return StatusCode(user.Code, user);
         }
+
 
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(UserLoginDto userLogin)
+        public async Task<IActionResult> Login(UserLoginDTO userLogin)
         {
-            try
-            {
-                var user = await _accountService.GetUserByUserNameAsync(userLogin.Username);
-                if (user == null) return Unauthorized("Usuário ou Senha está errado");
-
-                var result = await _accountService.CheckUserPasswordAsync(user, userLogin.Password);
-                if (!result.Succeeded) return Unauthorized();
-
-                return Ok(new
-                {
-                    userName = user.UserName,
-                    email = user.Email,
-                    token = _tokenService.CreateToken(user).Result
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar realizar Login. Erro: {ex.Message}");
-            }
+            var user = await _accountService.Login(userLogin);
+            return StatusCode(user.Code, user);
         }
 
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser(UserDTO userUpdateDto)
         {
-            try
-            {
-                if (userUpdateDto.UserName != User.GetUserName())
-                    return Unauthorized("Usuário Inválido");
-
-                var user = await _accountService.GetUserByUserNameAsync(User.GetUserName());
-                if (user == null) return Unauthorized("Usuário Inválido");
-
-                var userReturn = await _accountService.UpdateAccount(userUpdateDto);
-                if (userReturn == null) return NoContent();
-
-                return Ok(new
-                {
-                    userName = userReturn.UserName,
-                    email = userReturn.Email,
-                    token = _tokenService.CreateToken(userReturn).Result
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar Atualizar Usuário. Erro: {ex.Message}");
-            }
+            var user = await _accountService.UpdateAccount(userUpdateDto);
+            return StatusCode(user.Code, user);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace KeepNotes.Service
         public KeepNotesProfile()
         {
             CreateMap<User, UserDTO>(MemberList.None).ReverseMap();
-            CreateMap<User, UserLoginDto>(MemberList.None).ReverseMap();
+            CreateMap<User, UserLoginDTO>(MemberList.None).ReverseMap();
         }
     }
 }

@@ -13,76 +13,104 @@ namespace KeepNotes.Service
         private readonly SignInManager<User> _signInManager;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly ITokenService _tokenService;
         public AccountService(UserManager<User> userManager,
                               SignInManager<User> signInManager,
                               IMapper mapper,
-                              IUserRepository userRepository)
+                              IUserRepository userRepository,
+                              ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _mapper = mapper;
             _userRepository = userRepository;
+            _tokenService = tokenService;
         }
 
-        public async Task<SignInResult> CheckUserPasswordAsync(UserDTO userUpdateDto, string password)
+        private async Task<SignInResult> CheckUserPasswordAsync(UserLoginDTO userUpdateDto)
         {
             try
             {
-                var user = await _userManager.Users
-                                             .SingleOrDefaultAsync(user => user.UserName == userUpdateDto.UserName.ToLower());
-
-                return await _signInManager.CheckPasswordSignInAsync(user, password, false);
+                var user = await GetUserAsync(userUpdateDto.UserName);
+                return await _signInManager.CheckPasswordSignInAsync(user, userUpdateDto.Password, false);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao tentar verificar password. Erro: {ex.Message}");
+                throw new Exception($"Erro ao verificar senha do usuário. Erro: {ex.Message}");
             }
         }
 
-        public async Task<UserDTO> CreateAccountAsync(UserDTO userDto)
+        public async Task<ResponseDTO> CreateAccountAsync(UserDTO userDto)
         {
+            ResponseDTO responseDTO = new();
             try
             {
+                if (await UserExists(userDto.UserName))
+                    throw new Exception($"Usuário {userDto.UserName} já existe.");
+
                 var user = _mapper.Map<User>(userDto);
                 var result = await _userManager.CreateAsync(user, userDto.Password);
 
                 if (result.Succeeded)
+                    responseDTO.Object = _mapper.Map<UserDTO>(user);
+                else
                 {
-                    var userToReturn = _mapper.Map<UserDTO>(user);
-                    return userToReturn;
+                    string error = string.Empty;
+                    foreach (var item in result.Errors)
+                    {
+                        error += item.Description + "\n";
+                    }
+                    throw new Exception(error);
                 }
-
-                return null;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao tentar Criar Usuário. Erro: {ex.Message}");
+                responseDTO.SetError(ex);
             }
+            return responseDTO;
         }
 
-        public async Task<UserDTO> GetUserByUserNameAsync(string userName)
+        private async Task<User> GetUserAsync(string userName)
         {
+
+            var user = await _userRepository.GetEntities()
+                                            .FirstOrDefaultAsync(x => x.UserName == userName) ??
+                                            throw new Exception($"Usuário '{userName}' não encontrado!");
+            return user;
+        }
+
+        public async Task<ResponseDTO> Login(UserLoginDTO userDTO)
+        {
+            ResponseDTO responseDTO = new();
             try
             {
-                var user = await _userRepository.GetUserByUserNameAsync(userName);
-                if (user == null) return null;
-
-                var userUpdateDto = _mapper.Map<UserDTO>(user);
-                return userUpdateDto;
+                var user = await GetUserAsync(userDTO.UserName);
+                var password = await CheckUserPasswordAsync(userDTO);
+                if (user != null && password.Succeeded)
+                {
+                    responseDTO.Object = new
+                    {
+                        userName = user.UserName,
+                        email = user.Email,
+                        token = await _tokenService.CreateToken(_mapper.Map<UserDTO>(user))
+                    };
+                }
+                else
+                    responseDTO.Code = 401;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao tentar pegar Usuário por Username. Erro: {ex.Message}");
+                responseDTO.SetError(ex);
             }
+            return responseDTO;
         }
 
-        public async Task<UserDTO> UpdateAccount(UserDTO userDTO)
+        public async Task<ResponseDTO> UpdateAccount(UserDTO userDTO)
         {
+            ResponseDTO responseDTO = new();
             try
             {
-                var user = await _userRepository.GetUserByUserNameAsync(userDTO.UserName);
-                if (user == null) return null;
-
+                var user = await GetUserAsync(userDTO.UserName) ?? throw new Exception($"Usuário '{userDTO.UserName}' não encontrado!"); ;
                 userDTO.Id = user.Id;
 
                 _mapper.Map(userDTO, user);
@@ -94,33 +122,42 @@ namespace KeepNotes.Service
                 }
 
                 _userRepository.Update(user);
+                await _userRepository.SaveChangesAsync();
+                var userRetorno = await GetUserAsync(user.UserName);
 
-                if (await _userRepository.SaveChangesAsync())
-                {
-                    var userRetorno = await _userRepository.GetUserByUserNameAsync(user.UserName);
-
-                    return _mapper.Map<UserDTO>(userRetorno);
-                }
-
-                return null;
+                responseDTO.Object = _mapper.Map<UserDTO>(userRetorno);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao tentar atualizar usuário. Erro: {ex.Message}");
+                responseDTO.SetError(ex);
             }
+            return responseDTO;
         }
 
-        public async Task<bool> UserExists(string userName)
+        private async Task<bool> UserExists(string userName)
         {
             try
             {
-                return await _userManager.Users
-                                         .AnyAsync(user => user.UserName == userName.ToLower());
+                return await _userManager.Users.AnyAsync(user => user.UserName == userName.ToLower());
             }
             catch (Exception ex)
             {
                 throw new Exception($"Erro ao verificar se usuário existe. Erro: {ex.Message}");
             }
+        }
+
+        public async Task<ResponseDTO> GetUserByUserNameAsync(string userName)
+        {
+            ResponseDTO responseDTO = new ResponseDTO();
+            try
+            {
+                responseDTO.Object = await GetUserAsync(userName);
+            }
+            catch (Exception ex)
+            {
+                responseDTO.SetError(ex);
+            }
+            return responseDTO;
         }
     }
 }

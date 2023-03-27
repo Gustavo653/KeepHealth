@@ -10,19 +10,5 @@ namespace KeepNotes.Application
         public UserRepository(KeepNotesContext context) : base(context)
         {
         }
-        public async Task<IEnumerable<User>> GetUsersAsync()
-        {
-            return await GetListAsync();
-        }
-
-        public async Task<User> GetUserByIdAsync(long id)
-        {
-            return await GetEntities().FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<User> GetUserByUserNameAsync(string userName)
-        {
-            return await GetEntities().FirstOrDefaultAsync(x => x.UserName == userName);
-        }
     }
 }
