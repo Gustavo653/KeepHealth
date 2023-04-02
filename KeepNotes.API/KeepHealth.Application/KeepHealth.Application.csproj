@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.DataAccess\Common.DataAccess.csproj" />
+    <ProjectReference Include="..\Common.Infrastructure\Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\KeepHealth.Domain\KeepHealth.Domain.csproj" />
+    <ProjectReference Include="..\KeepHealth.Persistence\KeepHealth.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>
