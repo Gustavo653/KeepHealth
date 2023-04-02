@@ -181,16 +181,16 @@ namespace KeepHealth.API
 
         private static async Task SeedAdminUser(IServiceProvider serviceProvider)
         {
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
             var adminEmail = "admin@admin.com";
             var adminPassword = "admin";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
             {
-                adminUser = new IdentityUser(adminEmail);
-                await userManager.CreateAsync(adminUser, adminPassword);
-                await userManager.AddToRoleAsync(adminUser, RoleName.Admin.ToString());
+                var user = new User { Name = adminPassword, Email = adminEmail, UserName = adminPassword };
+                await userManager.CreateAsync(user, adminPassword);
+                await userManager.AddToRoleAsync(user, RoleName.Admin.ToString());
             }
         }
     }
