@@ -9,13 +9,10 @@ namespace KeepHealth.API.Controllers
     public class AccountController : BaseController
     {
         private readonly IAccountService _accountService;
-        private readonly ITokenService _tokenService;
 
-        public AccountController(IAccountService accountService,
-                                 ITokenService tokenService)
+        public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
-            _tokenService = tokenService;
         }
 
         [HttpGet("GetUser")]
@@ -49,7 +46,6 @@ namespace KeepHealth.API.Controllers
             return StatusCode(user.Code, user);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser(UserDTO userUpdateDto)
         {

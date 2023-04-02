@@ -1,12 +1,14 @@
 using Common.Functions;
 using Hangfire;
 using KeepHealth.Application;
+using KeepHealth.Domain.Enum;
 using KeepHealth.Domain.Identity;
 using KeepHealth.Persistence;
 using KeepHealth.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -36,18 +38,26 @@ namespace KeepHealth.API
                 x.EnableDetailedErrors();
             });
 
-            var optionsKeepHealth = builder.Services.BuildServiceProvider().GetRequiredService<DbContextOptions<KeepHealthContext>>();
-
-            Task.Run(() =>
-            {
-                using var dbContext = new KeepHealthContext(optionsKeepHealth);
-                var model = dbContext.Model;
-                dbContext.Database.Migrate();
-            });
+            builder.Services.AddIdentity<User, Role>()
+                            .AddEntityFrameworkStores<KeepHealthContext>()
+                            .AddDefaultTokenProviders();
 
             builder.Services.AddTransient<ITokenService, TokenService>();
             builder.Services.AddTransient<IAccountService, AccountService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();
+            builder.Services.AddTransient<RoleManager<Role>>();
+            builder.Services.AddTransient<UserManager<User>>();
+
+            Task.Run(() =>
+            {
+                using (var serviceProvider = builder.Services.BuildServiceProvider())
+                {
+                    var dbContext = serviceProvider.GetService<KeepHealthContext>();
+                    dbContext.Database.Migrate();
+                    SeedRoles(serviceProvider).Wait();
+                    SeedAdminUser(serviceProvider).Wait();
+                }
+            });
 
             builder.Services.AddIdentityCore<User>(options =>
             {
@@ -154,6 +164,34 @@ namespace KeepHealth.API
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static async Task SeedRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
+            var roles = new List<string>() { RoleName.Patient.ToString(), RoleName.Doctor.ToString(), RoleName.Admin.ToString() };
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new Role { Name = role });
+                }
+            }
+        }
+
+        private static async Task SeedAdminUser(IServiceProvider serviceProvider)
+        {
+            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var adminEmail = "admin@admin.com";
+            var adminPassword = "admin";
+
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new IdentityUser(adminEmail);
+                await userManager.CreateAsync(adminUser, adminPassword);
+                await userManager.AddToRoleAsync(adminUser, RoleName.Admin.ToString());
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using KeepHealth.Domain.Identity;
+﻿using KeepHealth.Domain;
+using KeepHealth.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,10 @@ namespace KeepHealth.Persistence
         {
         }
 
+        public Doctor Doctor { get; set; }
+        public MedicalSpeciality MedicalSpeciality { get; set; }
+        public MedicalCondition MedicalCondition { get; set; }
+        public Patient Patient { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

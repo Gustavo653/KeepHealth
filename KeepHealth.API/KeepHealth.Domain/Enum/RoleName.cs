@@ -1,6 +1,6 @@
 ﻿namespace KeepHealth.Domain.Enum
 {
-    public enum Role
+    public enum RoleName
     {
         Patient,
         Doctor,
