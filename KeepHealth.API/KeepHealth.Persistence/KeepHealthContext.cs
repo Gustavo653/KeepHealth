@@ -16,10 +16,10 @@ namespace KeepHealth.Persistence
         {
         }
 
-        public Doctor Doctor { get; set; }
-        public MedicalSpeciality MedicalSpeciality { get; set; }
-        public MedicalCondition MedicalCondition { get; set; }
-        public Patient Patient { get; set; }
+        public DbSet<Doctor> Doctor { get; set; }
+        public DbSet<MedicalSpeciality> MedicalSpeciality { get; set; }
+        public DbSet<MedicalCondition> MedicalCondition { get; set; }
+        public DbSet<Patient> Patient { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

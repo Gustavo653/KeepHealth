@@ -4,17 +4,5 @@ Microsoft.EntityFrameworkCore.Tools
 Microsoft.EntityFrameworkCore.Design
 
 
-Npgsql.EntityFrameworkCore.PostgreSQL
-dotnet ef dbcontext scaffold "string banco" Npgsql.EntityFrameworkCore.PostgreSQL -o Models
-
-Oracle.ManagedDataAccess.Core
-dotnet ef dbcontext scaffold "string banco" Oracle.EntityFrameworkCore -o ModelsEME4 
-
-Microsoft.EntityFrameworkCore.SqlServer
-dotnet ef dbcontext scaffold "string banco" Microsoft.EntityFrameworkCore.SqlServer -o Models
-
-
-
-
 Para criar migration:
-dotnet ef migrations add Initial -p KeepHealth.Persistence -s KeepHealth -c KeepHealthContext --verbose
+dotnet ef migrations add CreateDoctorPacient -p KeepHealth.Persistence -s KeepHealth.API -c KeepHealthContext --verbose
