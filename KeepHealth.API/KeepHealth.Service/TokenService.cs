@@ -1,6 +1,7 @@
 using AutoMapper;
 using Common.DTO;
 using KeepHealth.Domain.Identity;
+using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

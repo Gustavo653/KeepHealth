@@ -1,6 +1,6 @@
 using Common.DTO;
 using Common.Functions;
-using KeepHealth.Service;
+using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

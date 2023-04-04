@@ -9,7 +9,7 @@ namespace KeepHealth.Domain
 {
     public class Patient : BaseEntity
     {
-        public List<MedicalCondition> MedicalConditions { get; set; }
+        public List<Patient_MedicalCondition> Patient_MedicalConditions { get; set; }
         public User User { get; set; }
     }
 }

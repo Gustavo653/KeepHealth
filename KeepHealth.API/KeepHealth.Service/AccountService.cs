@@ -1,7 +1,8 @@
 using AutoMapper;
 using Common.DTO;
-using KeepHealth.Application;
+using KeepHealth.Application.Interface;
 using KeepHealth.Domain.Identity;
+using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

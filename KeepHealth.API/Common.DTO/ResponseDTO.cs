@@ -21,5 +21,10 @@ namespace Common.DTO
             Code = 500;
             Message = $"Método não implementado! {cod}";
         }
+        public void SetNotFound()
+        {
+            Code = 404;
+            Message = "Registro não encontrado!";
+        }
     }
 }

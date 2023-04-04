@@ -1,10 +1,12 @@
 using Common.Functions;
 using Hangfire;
 using KeepHealth.Application;
+using KeepHealth.Application.Interface;
 using KeepHealth.Domain.Enum;
 using KeepHealth.Domain.Identity;
 using KeepHealth.Persistence;
 using KeepHealth.Service;
+using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,8 @@ namespace KeepHealth.API
             builder.Services.AddTransient<ITokenService, TokenService>();
             builder.Services.AddTransient<IAccountService, AccountService>();
             builder.Services.AddTransient<IUserRepository, UserRepository>();
+            builder.Services.AddTransient<IMedicalConditionRepository, MedicalConditionRepository>();
+            builder.Services.AddTransient<IPatientService, PatientService>();
             builder.Services.AddTransient<RoleManager<Role>>();
             builder.Services.AddTransient<UserManager<User>>();
 
