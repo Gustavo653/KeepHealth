@@ -9,6 +9,7 @@ namespace KeepHealth.Service.Interface
 {
     public interface IPatientService
     {
+        Task<ResponseDTO> CreateOrUpdatePatient(CreatePatientDTO createPatientDTO);
         Task<ResponseDTO> CreateOrUpdateMedicalCondition(CreateMedicalDTO createMedicalDTO);
         Task<ResponseDTO> GetAllMedicalCondition();
         Task<ResponseDTO> GetMedicalConditionById(long id);

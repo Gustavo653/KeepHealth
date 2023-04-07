@@ -16,18 +16,10 @@ namespace KeepHealth.API.Controllers
         }
 
         [HttpGet("GetUser")]
-        public async Task<ResponseDTO> GetUser()
+        public async Task<IActionResult> GetUser()
         {
-            ResponseDTO responseDTO = new();
-            try
-            {
-                responseDTO.Object = await _accountService.GetUserByUserNameAsync(User.GetUserName());
-            }
-            catch (Exception ex)
-            {
-                responseDTO.SetError(ex);
-            }
-            return responseDTO;
+            var user = await _accountService.GetUserByUserNameAsync(User.GetUserName());
+            return StatusCode(user.Code, user.Object);
         }
 
         [HttpPost("Register")]

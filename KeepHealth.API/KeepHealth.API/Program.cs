@@ -49,6 +49,8 @@ namespace KeepHealth.API
             builder.Services.AddTransient<IUserRepository, UserRepository>();
             builder.Services.AddTransient<IMedicalConditionRepository, MedicalConditionRepository>();
             builder.Services.AddTransient<IPatientService, PatientService>();
+            builder.Services.AddTransient<IPatientRepository, PatientRepository>();
+            builder.Services.AddTransient<IPatient_MedicalConditionRepository, Patient_MedicalConditionRepository>();
             builder.Services.AddTransient<RoleManager<Role>>();
             builder.Services.AddTransient<UserManager<User>>();
 
@@ -78,7 +80,12 @@ namespace KeepHealth.API
             .AddEntityFrameworkStores<KeepHealthContext>()
             .AddDefaultTokenProviders();
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -89,8 +96,15 @@ namespace KeepHealth.API
                     ValidateAudience = false
                 };
             });
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdminRole", policy => policy.RequireRole(RoleName.Admin.ToString()));
+                options.AddPolicy("RequireDoctorRole", policy => policy.RequireRole(RoleName.Doctor.ToString()));
+                options.AddPolicy("RequirePatientRole", policy => policy.RequireRole(RoleName.Patient.ToString()));
+            });
+
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddControllers()
                     .AddJsonOptions(options =>
@@ -104,7 +118,7 @@ namespace KeepHealth.API
 
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "SO.API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "KeepHealth.API", Version = "v1" });
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT Authorization header usando Bearer.
@@ -190,12 +204,13 @@ namespace KeepHealth.API
             var adminPassword = "admin";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var user = new User { Name = adminPassword, Email = adminEmail, UserName = adminPassword };
             if (adminUser == null)
             {
-                var user = new User { Name = adminPassword, Email = adminEmail, UserName = adminPassword };
                 await userManager.CreateAsync(user, adminPassword);
-                await userManager.AddToRoleAsync(user, RoleName.Admin.ToString());
             }
+            if (!await userManager.IsInRoleAsync(adminUser ?? user, RoleName.Admin.ToString()))
+                await userManager.AddToRoleAsync(adminUser ?? user, RoleName.Admin.ToString());
         }
     }
 }

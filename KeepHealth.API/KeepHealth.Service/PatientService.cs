@@ -2,13 +2,11 @@
 using Common.DTO;
 using KeepHealth.Application.Interface;
 using KeepHealth.Domain;
+using KeepHealth.Domain.Enum;
+using KeepHealth.Domain.Identity;
 using KeepHealth.Service.Interface;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KeepHealth.Service
 {
@@ -16,11 +14,21 @@ namespace KeepHealth.Service
     {
         private readonly IMedicalConditionRepository _medicalConditionRepository;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
+        private readonly IPatientRepository _patientRepository;
+        private readonly IPatient_MedicalConditionRepository _patient_MedicalConditionRepository;
 
-        public PatientService(IMedicalConditionRepository medicalConditionRepository, IMapper mapper)
+        public PatientService(IMedicalConditionRepository medicalConditionRepository,
+                              IMapper mapper,
+                              UserManager<User> userManager,
+                              IPatientRepository patientRepository,
+                              IPatient_MedicalConditionRepository patient_MedicalConditionRepository)
         {
             _medicalConditionRepository = medicalConditionRepository;
             _mapper = mapper;
+            _userManager = userManager;
+            _patientRepository = patientRepository;
+            _patient_MedicalConditionRepository = patient_MedicalConditionRepository;
         }
 
         public async Task<ResponseDTO> CreateOrUpdateMedicalCondition(CreateMedicalDTO createMedicalDTO)
@@ -37,6 +45,51 @@ namespace KeepHealth.Service
                     _medicalConditionRepository.Update(entity);
                 await _medicalConditionRepository.SaveChangesAsync();
                 responseDTO.Object = entity;
+            }
+            catch (Exception ex)
+            {
+                responseDTO.SetError(ex);
+            }
+            return responseDTO;
+        }
+
+        public async Task<ResponseDTO> CreateOrUpdatePatient(CreatePatientDTO createPatientDTO)
+        {
+            ResponseDTO responseDTO = new();
+            try
+            {
+                var userEntity = await _userManager.Users.FirstOrDefaultAsync(user => user.Id == createPatientDTO.Id);
+                userEntity = _mapper.Map<User>(createPatientDTO);
+                if (userEntity?.Id == 0)
+                    await _userManager.CreateAsync(userEntity, createPatientDTO.Password);
+                else
+                    await _userManager.UpdateAsync(userEntity);
+
+                userEntity = await _userManager.FindByEmailAsync(createPatientDTO.Email);
+
+                var patientEntity = new Patient
+                {
+                    User = userEntity,
+                };
+
+                if (!await _userManager.IsInRoleAsync(userEntity, RoleName.Patient.ToString()))
+                    await _userManager.AddToRoleAsync(userEntity, RoleName.Patient.ToString());
+
+                await _patientRepository.InsertAsync(patientEntity);
+
+                var medicalConditions = _medicalConditionRepository.GetEntities().Where(x => createPatientDTO.MedicalConditions.Contains(x.Id));
+
+                foreach (var item in medicalConditions)
+                {
+                    Patient_MedicalCondition patient = new()
+                    {
+                        Patient = patientEntity,
+                        MedicalCondition = item
+                    };
+                    await _patient_MedicalConditionRepository.InsertAsync(patient);
+                }
+                await _patientRepository.SaveChangesAsync();
+                responseDTO.Object = userEntity;
             }
             catch (Exception ex)
             {

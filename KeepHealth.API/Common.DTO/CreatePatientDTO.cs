@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Common.DTO
 {
-    public class CreatePatientDTO
+    public class CreatePatientDTO : UserDTO
     {
+        public List<long> MedicalConditions { get; set; }
     }
 }

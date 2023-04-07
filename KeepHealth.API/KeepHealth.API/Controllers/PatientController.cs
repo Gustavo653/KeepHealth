@@ -2,6 +2,7 @@
 using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using KeepHealth.Domain.Enum;
 
 namespace KeepHealth.API.Controllers
 {
@@ -14,6 +15,14 @@ namespace KeepHealth.API.Controllers
             _patientService = patientService;
         }
 
+        [HttpPost("CreateOrUpdatePatient")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreateOrUpdatePatient(CreatePatientDTO patientDTO)
+        {
+            var user = await _patientService.CreateOrUpdatePatient(patientDTO);
+            return StatusCode(user.Code, user);
+        }
+
         [HttpPost("CreateOrUpdateMedicalCondition")]
         [AllowAnonymous]
         public async Task<IActionResult> CreateOrUpdateMedicalCondition(CreateMedicalDTO medicalDTO)
@@ -23,7 +32,7 @@ namespace KeepHealth.API.Controllers
         }
 
         [HttpGet("GetAllMedicalCondition")]
-        [AllowAnonymous]
+        [Authorize(Roles = nameof(RoleName.Patient))]
         public async Task<IActionResult> GetAllMedicalCondition()
         {
             var user = await _patientService.GetAllMedicalCondition();
