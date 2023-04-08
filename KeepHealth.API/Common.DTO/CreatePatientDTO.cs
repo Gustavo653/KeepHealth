@@ -8,6 +8,6 @@ namespace Common.DTO
 {
     public class CreatePatientDTO : UserDTO
     {
-        public List<long> MedicalConditions { get; set; }
+        public List<long>? MedicalConditions { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 using AutoMapper;
 using Common.DTO;
+using Common.Functions;
 using KeepHealth.Application.Interface;
+using KeepHealth.Domain.Enum;
 using KeepHealth.Domain.Identity;
 using KeepHealth.Service.Interface;
 using Microsoft.AspNetCore.Identity;
@@ -41,36 +43,6 @@ namespace KeepHealth.Service
             }
         }
 
-        public async Task<ResponseDTO> CreateAccountAsync(UserDTO userDto)
-        {
-            ResponseDTO responseDTO = new();
-            try
-            {
-                if (await UserExists(userDto.UserName))
-                    throw new Exception($"Usuário {userDto.UserName} já existe.");
-
-                var user = _mapper.Map<User>(userDto);
-                var result = await _userManager.CreateAsync(user, userDto.Password);
-
-                if (result.Succeeded)
-                    responseDTO.Object = _mapper.Map<UserDTO>(user);
-                else
-                {
-                    string error = string.Empty;
-                    foreach (var item in result.Errors)
-                    {
-                        error += item.Description + "\n";
-                    }
-                    throw new Exception(error);
-                }
-            }
-            catch (Exception ex)
-            {
-                responseDTO.SetError(ex);
-            }
-            return responseDTO;
-        }
-
         private async Task<User> GetUserAsync(string userName)
         {
 
@@ -106,27 +78,12 @@ namespace KeepHealth.Service
             return responseDTO;
         }
 
-        public async Task<ResponseDTO> UpdateAccount(UserDTO userDTO)
+        public async Task<ResponseDTO> GetUserByUserNameAsync(string userName)
         {
             ResponseDTO responseDTO = new();
             try
             {
-                var user = await GetUserAsync(userDTO.UserName) ?? throw new Exception($"Usuário '{userDTO.UserName}' não encontrado!"); ;
-                userDTO.Id = user.Id;
-
-                _mapper.Map(userDTO, user);
-
-                if (userDTO.Password != null)
-                {
-                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    await _userManager.ResetPasswordAsync(user, token, userDTO.Password);
-                }
-
-                _userRepository.Update(user);
-                await _userRepository.SaveChangesAsync();
-                var userRetorno = await GetUserAsync(user.UserName);
-
-                responseDTO.Object = _mapper.Map<UserDTO>(userRetorno);
+                responseDTO.Object = await GetUserAsync(userName);
             }
             catch (Exception ex)
             {
@@ -135,24 +92,39 @@ namespace KeepHealth.Service
             return responseDTO;
         }
 
-        private async Task<bool> UserExists(string userName)
-        {
-            try
-            {
-                return await _userManager.Users.AnyAsync(user => user.UserName == userName.ToLower());
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro ao verificar se usuário existe. Erro: {ex.Message}");
-            }
-        }
-
-        public async Task<ResponseDTO> GetUserByUserNameAsync(string userName)
+        public async Task<ResponseDTO> CreateOrUpdateUser(long? id, UserDTO user)
         {
             ResponseDTO responseDTO = new();
             try
             {
-                responseDTO.Object = await GetUserAsync(userName);
+                var userEntity = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id || x.Email == user.Email || x.UserName == user.UserName);
+                if (userEntity == null)
+                {
+                    userEntity = new();
+                    PropertyCopier<UserDTO, User>.Copy(user, userEntity);
+                    await _userManager.CreateAsync(userEntity, user.Password);
+                }
+                else
+                {
+                    PropertyCopier<UserDTO, User>.Copy(user, userEntity);
+                    await _userManager.UpdateAsync(userEntity);
+                }
+                responseDTO.Object = userEntity;
+            }
+            catch (Exception ex)
+            {
+                responseDTO.SetError(ex);
+            }
+            return responseDTO;
+        }
+
+        public async Task<ResponseDTO> AddUserInRole(User user, RoleName role)
+        {
+            ResponseDTO responseDTO = new();
+            try
+            {
+                if (!await _userManager.IsInRoleAsync(user, role.ToString()))
+                    await _userManager.AddToRoleAsync(user, role.ToString());
             }
             catch (Exception ex)
             {

@@ -4,7 +4,6 @@ namespace Common.DTO
 {
     public class UserDTO
     {
-        public long? Id { get; set; }
         [Required]
         public string UserName { get; set; } = null!;
         [Required]

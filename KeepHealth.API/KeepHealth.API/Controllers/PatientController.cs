@@ -17,14 +17,14 @@ namespace KeepHealth.API.Controllers
 
         [HttpPost("CreateOrUpdatePatient")]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateOrUpdatePatient(CreatePatientDTO patientDTO)
+        public async Task<IActionResult> CreateOrUpdatePatient([FromQuery] long? patientId, CreatePatientDTO patientDTO)
         {
-            var user = await _patientService.CreateOrUpdatePatient(patientDTO);
+            var user = await _patientService.CreateOrUpdatePatient(patientId, patientDTO);
             return StatusCode(user.Code, user);
         }
 
         [HttpPost("CreateOrUpdateMedicalCondition")]
-        [AllowAnonymous]
+        [Authorize(Roles = nameof(RoleName.Admin))]
         public async Task<IActionResult> CreateOrUpdateMedicalCondition(CreateMedicalDTO medicalDTO)
         {
             var user = await _patientService.CreateOrUpdateMedicalCondition(medicalDTO);
@@ -32,7 +32,6 @@ namespace KeepHealth.API.Controllers
         }
 
         [HttpGet("GetAllMedicalCondition")]
-        [Authorize(Roles = nameof(RoleName.Patient))]
         public async Task<IActionResult> GetAllMedicalCondition()
         {
             var user = await _patientService.GetAllMedicalCondition();

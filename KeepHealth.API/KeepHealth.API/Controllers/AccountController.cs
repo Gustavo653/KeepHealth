@@ -22,26 +22,11 @@ namespace KeepHealth.API.Controllers
             return StatusCode(user.Code, user.Object);
         }
 
-        [HttpPost("Register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register(UserDTO userDto)
-        {
-            var user = await _accountService.CreateAccountAsync(userDto);
-            return StatusCode(user.Code, user);
-        }
-
         [HttpPost("Login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login(UserLoginDTO userLogin)
         {
             var user = await _accountService.Login(userLogin);
-            return StatusCode(user.Code, user);
-        }
-
-        [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUser(UserDTO userUpdateDto)
-        {
-            var user = await _accountService.UpdateAccount(userUpdateDto);
             return StatusCode(user.Code, user);
         }
     }
